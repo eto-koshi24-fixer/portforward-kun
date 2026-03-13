@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__fds__list_components",
+      "mcp__fds__list_design_tokens",
+      "mcp__fds__get_component_details",
+      "mcp__fds__list_design_rules",
+      "mcp__fds__list_prompt_templates",
+      "mcp__fds__get_design_token_details",
+      "mcp__fds__get_design_rule_details",
+      "Bash(cd C:/github/portforward-kun/portforward-kun && pnpm add swr zustand lucide-react)",
+      "Bash(cd C:/github/portforward-kun/portforward-kun && npx biome check --write src/ 2>&1 | tail -10)",
+      "Bash(cd C:/github/portforward-kun/portforward-kun && npx biome check src/ 2>&1)",
+      "Bash(cd C:/github/portforward-kun/portforward-kun && npx biome check --write --unsafe src/ 2>&1 | tail -5)",
+      "Bash(cd C:/github/portforward-kun/portforward-kun && npx next build 2>&1 | tail -15)",
+      "Bash(cd C:/github/portforward-kun && curl -s http://localhost:8080/api/tunnels 2>&1 | head -200)"
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "Global": {
+    "SsoStartUrl": "https://d-xxxxxxxxxx.awsapps.com/start/#/?tab=accounts",
+    "SsoRegion": "ap-northeast-1",
+    "DefaultRegion": "ap-northeast-1",
+    "Output": "json",
+    "DbPort": 5432,
+    "DbUser": "postgres",
+    "CacheLookbackHours": 24,
+    "BastionTagKeys": {
+      "EnvKey": "Env",
+      "RoleKey": "Role",
+      "RoleValue": "bastion"
+    }
+  },
+  "Envs": {
+    "ve": {
+      "AccessType": "public"
+    },
+    "dv": {
+      "AccessType": "private",
+      "Profile": "sso-dv",
+      "AccountId": "123456789012",
+      "RoleName": "YourRoleName",
+      "EnvTagValue": "dv"
+    }
+  },
+  "DbInstances": {
+    "ve": [
+      {
+        "id": "Common",
+        "display_name": "共通",
+        "category": "common"
+      },
+      {
+        "id": "Tenant1",
+        "display_name": "テナント1",
+        "category": "tenant"
+      }
+    ]
+  },
+  "Connections": {
+    "ve": {
+      "Common": {
+        "host": "your-cluster.cluster-xxxxxxxxx.ap-northeast-1.rds.amazonaws.com",
+        "password": "your-password-here"
+      },
+      "Tenant1": {
+        "host": "your-cluster-tenant1.cluster-xxxxxxxxx.ap-northeast-1.rds.amazonaws.com",
+        "password": "your-password-here"
+      }
+    }
+  }
+}

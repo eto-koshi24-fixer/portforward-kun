@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+*.egg-info/
+dist/
+build/
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Credentials
+db_env_config.json
+ssm_connection_state.json
