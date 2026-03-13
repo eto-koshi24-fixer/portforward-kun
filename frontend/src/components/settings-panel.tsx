@@ -286,17 +286,15 @@ export function SettingsPanel({
                                   >
                                     編集
                                   </Button>
-                                  {conn && (
-                                    <Button
-                                      variant="text"
-                                      size="xs"
-                                      onClick={() =>
-                                        onEditConn(envKey, inst.id)
-                                      }
-                                    >
-                                      接続
-                                    </Button>
-                                  )}
+                                  <Button
+                                    variant="text"
+                                    size="xs"
+                                    onClick={() =>
+                                      onEditConn(envKey, inst.id)
+                                    }
+                                  >
+                                    {conn ? "接続" : "接続追加"}
+                                  </Button>
                                   <Button
                                     variant="danger-text"
                                     size="xs"
