@@ -1,0 +1,29 @@
+appId: com.portforward-kun.desktop
+productName: portforward-kun
+
+directories:
+  output: release
+
+files:
+  - electron/**/*
+  - package.json
+
+extraResources:
+  - from: frontend/out
+    to: frontend
+    filter:
+      - "**/*"
+  - from: dist/backend/backend_entry
+    to: backend
+    filter:
+      - "**/*"
+  - from: db_env_config.example.json
+    to: .
+
+win:
+  target:
+    - target: dir
+      arch:
+        - x64
+
+asar: true

@@ -68,6 +68,99 @@ pnpm dev
 
 `stop.bat` をダブルクリック、または各ターミナルで `Ctrl+C`。
 
+## デスクトップアプリ (Electron)
+
+ブラウザを使わず、単体のデスクトップアプリ (.exe) としてパッケージングできます。
+
+### 前提条件（ビルド時のみ）
+
+開発マシンに以下が必要です（利用者側は不要）。
+
+- Node.js 18+ / npm
+- pnpm
+- Python 3.10+ / pip
+- PyInstaller (`pip install pyinstaller`)
+
+### ビルド手順
+
+**ワンクリックビルド:**
+
+`build-desktop.bat` をダブルクリック。以下を自動で実行します。
+
+**手動ビルド:**
+
+```bash
+# 1. Electron 依存パッケージをインストール
+npm install
+
+# 2. フロントエンドを静的エクスポート
+cd frontend
+pnpm install
+set ELECTRON_BUILD=1
+set NEXT_PUBLIC_API_BASE=http://localhost:18080
+npx next build
+cd ..
+
+# 3. バックエンドを .exe にバンドル
+pip install pyinstaller
+pyinstaller --noconfirm --clean --distpath dist/backend backend_entry.py
+
+# 4. Electron でパッケージング
+npx electron-builder --win --dir
+```
+
+### 出力
+
+`release/win-unpacked/` に以下の構成で出力されます。
+
+```
+release/win-unpacked/
+├── portforward-kun.exe          ← 起動ファイル
+├── resources/
+│   ├── frontend/                # 静的 HTML/CSS/JS
+│   ├── backend/                 # Python バックエンド (.exe)
+│   └── db_env_config.example.json
+└── db_env_config.json           ← 初回起動時に example からコピー
+```
+
+### 配布
+
+`release/win-unpacked/` フォルダを zip で固めて GitHub Releases にアップロードします。
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+gh release create v1.0.0 ./portforward-kun-v1.0.0-win-x64.zip \
+  --title "v1.0.0" --notes "リリースノート"
+```
+
+利用者は zip をダウンロード → 展開 → `portforward-kun.exe` を起動するだけです。
+`db_env_config.json` を自分の環境に合わせて編集してください。
+
+### 仕組み
+
+| コンポーネント | 役割 |
+|---------------|------|
+| `electron/main.js` | Electron メインプロセス。バックエンド起動・ウィンドウ管理 |
+| `backend_entry.py` | PyInstaller 用エントリポイント |
+| `electron-builder.yml` | パッケージング設定 |
+| `build-desktop.bat` | ワンクリックビルドスクリプト |
+
+- Electron がウィンドウを提供し、カスタムプロトコル `app://` でフロントエンドの静的ファイルを配信
+- Python バックエンドは Electron の子プロセスとして自動起動・終了
+- `PORTFORWARD_DATA_DIR` 環境変数で設定ファイルの場所を制御（.exe と同じフォルダ）
+- フロントエンドは `ELECTRON_BUILD=1` で Next.js の静的エクスポート、`NEXT_PUBLIC_API_BASE` でバックエンドの直接アクセスに切り替え
+
+### 開発モードで Electron を起動
+
+バックエンド・フロントエンドを通常通り起動した状態で：
+
+```bash
+npx electron .
+```
+
+ブラウザの代わりに Electron ウィンドウが開きます（DevTools 付き）。
+
 ## 技術スタック
 
 | レイヤー | 技術 |
@@ -100,10 +193,15 @@ portforward-kun/
 │   │   └── port_validator.py     # ポート検証
 │   ├── routers/           # APIルーター
 │   └── config/            # 設定管理
+├── electron/              # Electron メインプロセス
+│   └── main.js            # ウィンドウ管理・バックエンド起動
 ├── docs/                  # 設計ドキュメント・画像
 ├── db_env_config.example.json  # 設定ファイルのテンプレート
-├── start.bat              # ワンクリック起動 (Windows)
-├── stop.bat               # ワンクリック停止 (Windows)
+├── backend_entry.py       # PyInstaller 用エントリポイント
+├── electron-builder.yml   # Electron パッケージング設定
+├── build-desktop.bat      # デスクトップ版ビルド (Windows)
+├── start.bat              # Web版 ワンクリック起動 (Windows)
+├── stop.bat               # Web版 ワンクリック停止 (Windows)
 └── requirements.txt       # Python依存パッケージ
 ```
 

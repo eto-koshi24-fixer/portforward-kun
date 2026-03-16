@@ -7,6 +7,7 @@ SSM Port Forwarder - FastAPI Application
   uvicorn backend.main:app --reload --port 18080
 """
 
+import os
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -24,8 +25,11 @@ from .routers import config_router, tunnel_router, test_router
 # パス解決
 # ============================================================
 
-# backend/ の親 = プロジェクトルート (portforward-kun/)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# PORTFORWARD_DATA_DIR が設定されていればそちらを優先 (Electron デスクトップモード)
+# 未設定なら従来通り backend/ の親 = プロジェクトルート
+PROJECT_ROOT = Path(
+    os.environ.get("PORTFORWARD_DATA_DIR", Path(__file__).resolve().parent.parent)
+)
 CONFIG_PATH = PROJECT_ROOT / "db_env_config.json"
 CONNECTION_STATE_PATH = PROJECT_ROOT / "ssm_connection_state.json"
 
@@ -91,10 +95,11 @@ app = FastAPI(
 )
 
 
-# CORS (Next.js dev server からのアクセスを許可)
+# CORS — デスクトップアプリ (file://) からもアクセスされるため全オリジン許可
+# ローカルホスト専用のツールなのでセキュリティ上の問題はない
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:18081"],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )

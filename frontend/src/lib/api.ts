@@ -20,7 +20,8 @@ export async function api<T>(
   if (body !== undefined) {
     opts.body = JSON.stringify(body);
   }
-  const res = await fetch(`/api${path}`, opts);
+  const base = process.env.NEXT_PUBLIC_API_BASE || "";
+  const res = await fetch(`${base}/api${path}`, opts);
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
     throw new ApiError(res.status, err.detail || res.statusText);
