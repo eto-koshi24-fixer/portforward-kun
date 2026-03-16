@@ -15,7 +15,7 @@ export function DbDeleteDialog({ ref, dbName, onConfirm }: Props) {
   return (
     <Dialog
       ref={ref}
-      title="DBインスタンスの削除"
+      title="DBインスタンスの設定を削除"
       footer={
         <>
           <Button
@@ -39,7 +39,7 @@ export function DbDeleteDialog({ ref, dbName, onConfirm }: Props) {
       }
     >
       <Banner>
-        DBインスタンス <strong>{dbName}</strong> を削除しますか？
+        DBインスタンス <strong>{dbName}</strong> の設定を削除しますか？（実際のRDSには影響しません）
       </Banner>
     </Dialog>
   );
