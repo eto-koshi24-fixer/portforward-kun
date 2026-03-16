@@ -56,6 +56,11 @@ export default function Home() {
   // Page view state
   const [view, setView] = useState<PageView>("main");
 
+  // Connect targets (multiple selection)
+  const [connectTargets, setConnectTargets] = useState<
+    { env: string; db_id: string }[]
+  >([]);
+
   // Port edit state
   const [portEditPort, setPortEditPort] = useState(0);
 
@@ -100,16 +105,23 @@ export default function Home() {
     const selected = getSelectedTunnels();
     const disconnected = selected.filter((t) => !t.connected);
     if (disconnected.length === 0) return;
-    const t = disconnected[0];
-    setEditingTarget({ env: t.env, db_id: t.db_id });
+    setConnectTargets(disconnected.map((t) => ({ env: t.env, db_id: t.db_id })));
     connectDialog.open();
   };
 
   const handleConnectConfirm = async () => {
     setLoading(true);
     try {
-      const res = await connect(editingTarget.env, editingTarget.db_id);
-      showSnackbar(res.message, "success", 5000);
+      for (const target of connectTargets) {
+        await connect(target.env, target.db_id);
+      }
+      showSnackbar(
+        connectTargets.length === 1
+          ? "接続しました"
+          : `${connectTargets.length} 件の接続を開始しました`,
+        "success",
+        5000,
+      );
       clearSelection();
     } catch (e) {
       showSnackbar(`接続エラー: ${(e as Error).message}`, "error", 5000);
@@ -119,20 +131,31 @@ export default function Home() {
   };
 
   // Disconnect flow
+  const [disconnectTargets, setDisconnectTargets] = useState<
+    { env: string; db_id: string }[]
+  >([]);
+
   const handleDisconnectClick = () => {
     const selected = getSelectedTunnels();
     const connected = selected.filter((t) => t.connected);
     if (connected.length === 0) return;
-    const t = connected[0];
-    setEditingTarget({ env: t.env, db_id: t.db_id });
+    setDisconnectTargets(connected.map((t) => ({ env: t.env, db_id: t.db_id })));
     disconnectDialog.open();
   };
 
   const handleDisconnectConfirm = async () => {
     setLoading(true);
     try {
-      const res = await disconnect(editingTarget.env, editingTarget.db_id);
-      showSnackbar(res.message, "default", 3000);
+      for (const target of disconnectTargets) {
+        await disconnect(target.env, target.db_id);
+      }
+      showSnackbar(
+        disconnectTargets.length === 1
+          ? "切断しました"
+          : `${disconnectTargets.length} 件を切断しました`,
+        "default",
+        3000,
+      );
       clearSelection();
     } catch (e) {
       showSnackbar(`切断エラー: ${(e as Error).message}`, "error", 5000);
@@ -380,10 +403,29 @@ export default function Home() {
   // Computed
   const connectedCount = tunnels.filter((t) => t.connected).length;
   const connectTargetName = (() => {
-    const t = tunnels.find(
-      (t) => t.env === editingTarget.env && t.db_id === editingTarget.db_id,
-    );
-    return t ? `${t.env} / ${t.display_name}` : "";
+    if (connectTargets.length === 0) return "";
+    const names = connectTargets
+      .map((ct) => {
+        const t = tunnels.find(
+          (t) => t.env === ct.env && t.db_id === ct.db_id,
+        );
+        return t ? `${t.env} / ${t.display_name}` : "";
+      })
+      .filter(Boolean);
+    return names.join("、");
+  })();
+
+  const disconnectTargetName = (() => {
+    if (disconnectTargets.length === 0) return "";
+    const names = disconnectTargets
+      .map((ct) => {
+        const t = tunnels.find(
+          (t) => t.env === ct.env && t.db_id === ct.db_id,
+        );
+        return t ? `${t.env} / ${t.display_name}` : "";
+      })
+      .filter(Boolean);
+    return names.join("、");
   })();
 
   return (
@@ -425,7 +467,7 @@ export default function Home() {
       />
       <DisconnectConfirmDialog
         ref={disconnectDialog.ref}
-        targetName={connectTargetName}
+        targetName={disconnectTargetName}
         onConfirm={handleDisconnectConfirm}
       />
       <DisconnectAllDialog

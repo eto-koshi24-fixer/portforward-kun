@@ -124,10 +124,15 @@ function killBackend() {
 // ---------------------------------------------------------------------------
 
 function createWindow() {
+  const iconPath = isDev
+    ? path.join(__dirname, "..", "build", "icon.png")
+    : path.join(process.resourcesPath, "app.asar.unpacked", "build", "icon.png");
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     title: "ポートフォワード管理くん",
+    icon: iconPath,
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false,

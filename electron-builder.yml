@@ -6,7 +6,11 @@ directories:
 
 files:
   - electron/**/*
+  - build/icon.png
   - package.json
+
+asarUnpack:
+  - build/icon.png
 
 extraResources:
   - from: frontend/out
@@ -21,6 +25,7 @@ extraResources:
     to: .
 
 win:
+  icon: build/icon.png
   target:
     - target: dir
       arch:
