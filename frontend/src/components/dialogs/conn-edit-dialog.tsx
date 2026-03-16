@@ -17,7 +17,7 @@ interface Props {
     envKey: string,
     dbId: string,
     data: Partial<ConnectionConfig>,
-  ) => void;
+  ) => Promise<void>;
   onTestConnection: (env: string, dbId: string) => void;
   testPassed: boolean;
 }
@@ -76,10 +76,16 @@ export function ConnEditDialog({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                if (env.trim() && dbId.trim()) {
-                  onTestConnection(env.trim(), dbId.trim());
+              onClick={async () => {
+                if (!env.trim() || !dbId.trim() || !host.trim()) return;
+                // 新規作成時は保存してからテスト（未保存だとバックエンドが設定を見つけられない）
+                if (!isEdit) {
+                  const body: Partial<ConnectionConfig> = { host, password };
+                  const port = Number.parseInt(localPort, 10);
+                  if (port) body.local_port = port;
+                  await onSave(env.trim(), dbId.trim(), body);
                 }
+                onTestConnection(env.trim(), dbId.trim());
               }}
             >
               接続テスト
